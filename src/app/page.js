@@ -89,15 +89,17 @@ useEffect(() => {
     }
 
     let nextHours = horasNext.map((item) => (
-      <div className="px-3 py-3 rounded-md w-[70px] text-center bg-[#0f1531] min-w-[58px]" key={uuidv4()}>
-        <p className="text-white text-[12px]">{item.time.slice(11, 16)}</p>
-        
-        {(item.is_day) 
-        ? <img src={`icons/day_${item.condition.text}.png`} alt={item.condition.text} className="w-1-2 m-auto" /> 
-        : <img src={`icons/night_${item.condition.text}.png`} alt={item.condition.text} className="w-1-2 m-auto" />}
+      <>
+        <div className="px-3 py-3 rounded-md w-[70px] text-center bg-[#0f1531] min-w-[58px]" key={uuidv4()}>
+          <p className="text-white text-[12px]">{item.time.slice(11, 16)}</p>
+          
+          {(item.is_day) 
+          ? <img src={`icons/day_${item.condition.text}.png`} alt={item.condition.text} className="w-1-2 m-auto" /> 
+          : <img src={`icons/night_${item.condition.text}.png`} alt={item.condition.text} className="w-1-2 m-auto" />}
 
-        <p className="text-white text-sm mt-2 font-extralight">{item.temp_c}º</p>
-    </div>
+          <p className="text-white text-sm mt-2 font-extralight">{item.temp_c}º</p>
+      </div>
+    </>
     ));
       setNextHours(nextHours);    
     }

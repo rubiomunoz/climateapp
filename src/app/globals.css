@@ -28,6 +28,22 @@ h1, h2, h3, h4, h5, h6, p {
   background-color: #3b6f69;
 }
 
+.parentday p::before {
+  content: "+";
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  font-size: 30px;
+  margin-right: 5px;
+  line-height: 10px;
+  padding-top: 5px;
+  vertical-align: sub;
+}
+
+.activeDay p::before {
+  content: "-";
+}
+
 main {
   background: rgb(23,43,80);
   background: linear-gradient(180deg, rgba(23,43,80,1) 0%, rgba(25,74,88,1) 50%, rgba(23,43,80,1) 100%); 
