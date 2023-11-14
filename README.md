@@ -4,6 +4,8 @@ Aplicación de tiempo basado en la API de WeatherAPI. Usa una API KEY gratuita q
 
 De cada tipo de clima hay un icono de día y otro de noche, con el prefijo day_ y night_. Debajo del clima actual escribo la condición actual y de ahí sacamos las imágenes que sacamos.
 
+Se puede consultar una versión online aquí: https://weather-app-sand.vercel.app/
+
 ## Cómo funciona
 En la versión actual sólo funciona dando permisos de localización.
 
