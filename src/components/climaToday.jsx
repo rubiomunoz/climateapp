@@ -1,7 +1,4 @@
 import { getDate } from '../js/functions.js';
-import { MagicMotion } from "react-magic-motion";
-
-
 
 export const ClimaToday = (props) => {
     const fechaActual = getDate();

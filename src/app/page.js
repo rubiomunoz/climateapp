@@ -20,14 +20,12 @@ export default function Home() {
   
   const [forecast, setForecast] = useState([]); // Para mostrar los datos de los próximos días
   const [nextDays, setNextDays] = useState([]); // Para mostrar los datos de los próximos días
-  const [userPermission, setUserPermission] = useState('pending'); // Para saber si el usuario ha dado permiso de ubicación
+  const [userPermission, setUserPermission] = useState('pending'); // Para saber si el usuario ha dado permiso de ubicación. En caso de hacer una búsqueda, se cambia a 'granted'.
 
-  const [isDaily, setIsDaily] = useState(false); 
-  const [dayData, setDayData] = useState([]); 
-
-  // Cuando cargamos por primera vez, pedimos permiso para la geolocalización. Si no nos lo da, la sacamos por IP. Si hay error, la asigno a Córdoba.
+  // Cuando cargamos por primera vez, pedimos permiso para la geolocalización. Si no nos lo da, por defecto cargaremos el componente de NotPermissionGranted y un buscador para encontrar la ciudad deseada.
   useEffect(() => {
   const fetchData = () => {
+    // Pedimos permiso para la geolocalización. Si nos lo concede, sacamos de ahí las coordenadas. Si no, cargamos el componente de NotPermissionGranted y un buscador para encontrar la ciudad deseada.
     obtenerUbicacion()
     .then((coordenadas) => {
       if (coordenadas) {
@@ -46,7 +44,7 @@ export default function Home() {
 }, []);
 
   //USANDO WHATERAPI
-  //Cuando tenemos las coordenadas, llamamos a la API para capturar los datos del tiempo
+  //Cuando tenemos las coordenadas, llamamos a la API de WeatherAPI para capturar los datos del tiempo
   useEffect(() => {
     if (positioning !== "") {
       const API_WEATHER_URL = "https://api.weatherapi.com/v1/forecast.json?key=" + process.env.NEXT_PUBLIC_WEATHERAPI_KEY + "&q=" + positioning + "&days=7&aqi=no&alerts=no";
@@ -56,16 +54,17 @@ export default function Home() {
       fetch(API_WEATHER_URL, options)
         .then(response => response.json())
         .then(data => {
-          setCity(data.location.name + ", " + data.location.country);
-          setCurrent(data.current);
-          setHourly(data.forecast.forecastday[0].hour);
-          setForecast(data.forecast.forecastday);
+          setCity(data.location.name + ", " + data.location.country); // Nombre de la ciudad y país para mostrar en la cabecera
+          setCurrent(data.current); // Datos actuales
+          setHourly(data.forecast.forecastday[0].hour); // Datos de las próximas horas
+          setForecast(data.forecast.forecastday); // Datos de los próximos días
 
-          let prefixDayNight;
+          let prefixDayNight; // Para saber si es de día o de noche y poner el icono correspondiente
           (data.current.is_day) ? prefixDayNight = "day_" : prefixDayNight = "night_";
           
+          // Icono principal en base al prefijo de día o de noche
           setMainIcon("icons/" + prefixDayNight + data.current.condition.text + ".png");
-          setIsLoading(false)
+          setIsLoading(false) // Tenemos almacenados los datos, así que ya no estamos cargando
         })
     }
   }, [city, positioning])
@@ -75,20 +74,22 @@ export default function Home() {
 useEffect(() => {
 
   //Sacamos los datos de las próximas horas
-  if(hourly.length > 0) {
+  if (hourly.length > 0) {
     const fecha = new Date();
 
     // Filtramos las horas de hoy a partir de la hora actual
     let horasNext = hourly.filter((item) => (item.time_epoch >= fecha.getTime() / 1000) && (item.time_epoch / 3600));
 
-    // Como no hay 12 horas, cogemos las del dias siguiente de forecast sin importar la hora, partiendo de la primera, el elemento cero
+    // Si no hay 12 horas, cogemos las del dias siguiente de forecast sin importar la hora, partiendo de la primera, el elemento cero
     if (horasNext.length < 12) {
       let horasNext2 = forecast[1].hour;
       horasNext.push(...horasNext2);
+
       // cortamos el array a los 12 elementos primeros
       horasNext = horasNext.slice(0, 12);
     }
 
+    // Una vez tenemos las doce horas, las pintamos usando .map y las guardamos en nextHours con el icono, temperatura y hora
     let nextHours = horasNext.map((item) => (
 
         <div className="px-3 py-3 rounded-md w-[70px] text-center bg-[#0f1531] min-w-[58px]" key={uuidv4()}>
@@ -102,40 +103,42 @@ useEffect(() => {
       </div>
 
     ));
-      setNextHours(nextHours);    
+      setNextHours(nextHours); // Guardamos los datos en nextHours para pasárselo al componente climaToday    
     }
 
-const setDailyData = (item) => {
-  //Vamos a filtrar el array con la fecha del item y vamos a inyectar el html en el div con id de item.date
-  const selectedDay = forecast.filter((day) => day.date === item.date);
+    //
+  const setDailyData = (item) => {
+    //Vamos a filtrar el array con la fecha del item y vamos a inyectar el html en el div con id de item.date
+    const selectedDay = forecast.filter((day) => day.date === item.date);
 
-  // Quitamos la clase hidden al div con id de item.date si la tiene en su classlist, en caso contrario se la añadimos. Además le añadimos la clase activeDay al div padre del día seleccionado
-  const itemDay = document.getElementById(item.date);
+    // Quitamos la clase hidden al div con id de item.date si la tiene en su classlist, en caso contrario se la añadimos. Además le añadimos la clase activeDay al div padre del día seleccionado
+    const itemDay = document.getElementById(item.date);
   
-  const parentDays = document.querySelectorAll(".parentday");
-  parentDays.forEach((item) => {
+    const parentDays = document.querySelectorAll(".parentday");
+    parentDays.forEach((item) => {
       item.classList.remove("activeDay");
-  })
+    })
 
-  const parent = document.getElementById(`parent-${item.date}`);
-  if (itemDay.classList.contains("hidden")) {
-    itemDay.classList.remove("hidden");
-    parent.classList.add("activeDay");
-  } else {
-    itemDay.classList.add("hidden");
+    const parent = document.getElementById(`parent-${item.date}`);
+    if (itemDay.classList.contains("hidden")) {
+      itemDay.classList.remove("hidden");
+      parent.classList.add("activeDay");
+    } else {
+      itemDay.classList.add("hidden");
+    } 
+
+    // A todos los demás div con clase itemday excepto al seleccionado le añadimos la clase hidden	
+    const itemDays = document.querySelectorAll(".itemday");
+    itemDays.forEach((item) => {
+      if (item.id !== selectedDay[0].date) {
+        item.classList.add("hidden");
+      }
+    })
+
   }
-  // A todos los demás div con clase itemday excepto al seleccionado le añadimos la clase hidden	
-  const itemDays = document.querySelectorAll(".itemday");
-  itemDays.forEach((item) => {
-    if (item.id !== selectedDay[0].date) {
-      item.classList.add("hidden");
-    }
-  })
-
-}
 
 
-  // Guardamos datos breves de los próximos días
+  // Creamos la sección de los próximos días con los datos del forecast
  const proxDays = forecast.map((item) => (
   
     <section key={uuidv4()}>
@@ -173,34 +176,38 @@ const setDailyData = (item) => {
   setNextDays(proxDays);
 
   //Si llegamos a este punto, el usuario ha dado permiso o ha realizado una búsqueda con éxito
-  setUserPermission('granted'); 
-}, [hourly]);
+    setUserPermission('granted'); 
+  }, [hourly]);
 
-const handleCitySelect = (city) => {
-  setCity('');
-  setPositioning('');
-  if (city.lat && city.lon) {
-    setCity(city.name + ", " + city.country);
-    setPositioning(city.lat + "," + city.lon);
+
+  // Cuando el usuario selecciona una ciudad en el buscador con Autocomplete, se ejecuta esta función que recibe el objeto ciudad y lo desestructura para obtener el nombre y las coordenadas. De primeras borramos la city y las coordenadas que hubiera, y luego las volvemos a asignar con los datos de la ciudad seleccionada.
+  const handleCitySelect = (city) => {
+    setCity('');
+    setPositioning('');
+    if (city.lat && city.lon) {
+      setCity(city.name + ", " + city.country);
+      setPositioning(city.lat + "," + city.lon);
+    }
   }
-}
 
 
-if (!isLoading) {
-        return (
-          <>
-            <AutoComplete 
-              className="w-full p-3 text-gray-900 bg-gray-100 rounded-md"
-              onCitySelect={handleCitySelect} 
-            />
-            {(userPermission === 'granted') 
-            ? <ClimaToday current={current} city={city} mainIcon={mainIcon} nextHours={nextHours} nextDays={nextDays} />
-            : <NotPermissionGranted />
-            }
-          </>
-        )
+  if (!isLoading) {
+    return (
+      <>
+        {/* El Buscador */}
+        <AutoComplete 
+          className="w-full p-3 text-gray-900 bg-gray-100 rounded-md"
+          onCitySelect={handleCitySelect} 
+        />
+
+        {(userPermission === 'granted')  // Los datos de la ciudad seleccionada
+        ? <ClimaToday current={current} city={city} mainIcon={mainIcon} nextHours={nextHours} nextDays={nextDays} />
+        : <NotPermissionGranted /> // El componente con el mensaje de que no se ha dado permiso
+        }
+      </>
+    )
   } else {
-    return (<span className="loader mt-[50px] mb-[50px]"></span>)
+    return (<span className="loader mt-[50px] mb-[50px]"></span>) // Cargador
   }
 }
 
