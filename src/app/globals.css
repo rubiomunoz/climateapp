@@ -28,6 +28,15 @@ h1, h2, h3, h4, h5, h6, p {
   background-color: #3b6f69;
 }
 
+div[role="combobox"] input[type="text"] {
+  width: 100%;
+  padding:10px;
+  color:rgb(151, 151, 151);
+  border-radius: 10px;
+  display: block;
+  margin-bottom: 15px;
+}
+
 .parentday p::before {
   content: "+";
   width: 15px;

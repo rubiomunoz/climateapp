@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect } from "react";
 import { ClimaToday } from "../components/climaToday";
-import { ClimaByIP } from "../components/climaByIP";
+import { NotPermissionGranted } from "../components/notPermissionGranted";
 import { obtenerUbicacion, convertirFecha } from "../js/functions";
 import { v4 as uuidv4 } from 'uuid';
 import { DayDetail } from '../components/DayDetail';
+import AutoComplete from '../components/AutoComplete';
 
 
 export default function Home() {
@@ -89,7 +90,7 @@ useEffect(() => {
     }
 
     let nextHours = horasNext.map((item) => (
-      <>
+
         <div className="px-3 py-3 rounded-md w-[70px] text-center bg-[#0f1531] min-w-[58px]" key={uuidv4()}>
           <p className="text-white text-[12px]">{item.time.slice(11, 16)}</p>
           
@@ -99,7 +100,7 @@ useEffect(() => {
 
           <p className="text-white text-sm mt-2 font-extralight">{item.temp_c}º</p>
       </div>
-    </>
+
     ));
       setNextHours(nextHours);    
     }
@@ -170,16 +171,34 @@ const setDailyData = (item) => {
   // Eliminamos el primer elemento, que es el de hoy
   proxDays.shift();
   setNextDays(proxDays);
+
+  //Si llegamos a este punto, el usuario ha dado permiso o ha realizado una búsqueda con éxito
+  setUserPermission('granted'); 
 }, [hourly]);
 
+const handleCitySelect = (city) => {
+  setCity('');
+  setPositioning('');
+  if (city.lat && city.lon) {
+    setCity(city.name + ", " + city.country);
+    setPositioning(city.lat + "," + city.lon);
+  }
+}
 
 
 if (!isLoading) {
-    if (userPermission === 'granted') {
-        return <ClimaToday current={current} city={city} mainIcon={mainIcon} nextHours={nextHours} nextDays={nextDays} />
-    } else {
-      return <ClimaByIP />
-    }
+        return (
+          <>
+            <AutoComplete 
+              className="w-full p-3 text-gray-900 bg-gray-100 rounded-md"
+              onCitySelect={handleCitySelect} 
+            />
+            {(userPermission === 'granted') 
+            ? <ClimaToday current={current} city={city} mainIcon={mainIcon} nextHours={nextHours} nextDays={nextDays} />
+            : <NotPermissionGranted />
+            }
+          </>
+        )
   } else {
     return (<span className="loader mt-[50px] mb-[50px]"></span>)
   }

@@ -1,12 +1,15 @@
 import { getDate } from '../js/functions.js';
 import { MagicMotion } from "react-magic-motion";
 
+
+
 export const ClimaToday = (props) => {
     const fechaActual = getDate();
     const { city, current, nextHours, mainIcon, forecast, nextDays } = props;
 
     return (
-        <MagicMotion>
+       
+          <>
             <h1 className="text-yellow-500 text-2xl font-bold text-left drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1)) mb-0">{city}</h1>
             <p className="text-white text-sm text-left drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1)) mb-0">{fechaActual}</p>
 
@@ -58,6 +61,6 @@ export const ClimaToday = (props) => {
             <div className="block mt-2">
               {nextDays}
             </div>
-        </MagicMotion>
+        </>
     )
 }
