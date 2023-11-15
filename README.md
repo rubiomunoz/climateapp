@@ -7,9 +7,8 @@ De cada tipo de clima hay un icono de día y otro de noche, con el prefijo day_ 
 Se puede consultar una versión online aquí: https://weather-app-sand.vercel.app/
 
 ## Cómo funciona
-En la versión actual sólo funciona dando permisos de localización.
+Cuando accedes, si das permisos de localización, cargará el clima de la localidad en la que se encuentra en base al posicionamiento (latitud y longitud). En caso contrario, se puede hacer uso del buscador implementado. Este funciona en base a la API de GeoApify (hace falta una nueva Key e incluirla en el archivo .env)
 
 ## Pendiente
-
--Incluir un formulario de búsqueda que permita buscar por ciudades.
 -Añadir más iconos de clima (los iré añadiendo según me van apareciendo)
+-Refactorizar el código
